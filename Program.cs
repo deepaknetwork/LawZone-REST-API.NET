@@ -24,7 +24,7 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
 {
-    var configuration = ConfigurationOptions.Parse("redis://red-cpqqd0tumphs73b0iorg:6379");
+    var configuration = ConfigurationOptions.Parse("red-cpqqd0tumphs73b0iorg:6379");
     configuration.AbortOnConnectFail = false;
     return ConnectionMultiplexer.Connect(configuration);
 });
