@@ -30,3 +30,6 @@ C:\Users\deepa\source\repos\last\obj\Debug\net8.0\refint\last.dll
 C:\Users\deepa\source\repos\last\obj\Debug\net8.0\last.pdb
 C:\Users\deepa\source\repos\last\obj\Debug\net8.0\last.genruntimeconfig.cache
 C:\Users\deepa\source\repos\last\obj\Debug\net8.0\ref\last.dll
+C:\Users\deepa\source\repos\last\bin\Debug\net8.0\Pipelines.Sockets.Unofficial.dll
+C:\Users\deepa\source\repos\last\bin\Debug\net8.0\StackExchange.Redis.dll
+C:\Users\deepa\source\repos\last\obj\Debug\net8.0\last.sourcelink.json
