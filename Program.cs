@@ -1,7 +1,10 @@
+using last.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using StackExchange.Redis;
+
+
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,6 +14,7 @@ builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddHttpClient();
 
 builder.Services.AddCors(options =>
 {
@@ -24,11 +28,13 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
 {
+    //var configuration = ConfigurationOptions.Parse("localhost:6379");
     var configuration = ConfigurationOptions.Parse("red-cpqqd0tumphs73b0iorg:6379");
     configuration.AbortOnConnectFail = false;
     return ConnectionMultiplexer.Connect(configuration);
 });
 
+builder.Services.AddTransient<LawService>();
 
 
 var app = builder.Build();
