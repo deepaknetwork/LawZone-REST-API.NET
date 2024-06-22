@@ -12,10 +12,7 @@ namespace last.Controllers
     [Route("")]
     public class WeatherForecastController : ControllerBase
     {
-        private static readonly string[] Summaries = new[]
-        {
-            "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-        };
+       
 
         private readonly IConnectionMultiplexer _redis;
         private readonly LawService _lawService;
@@ -30,26 +27,6 @@ namespace last.Controllers
             _clientFactory = clientFactory;
         }
 
-        //[HttpGet(Name = "GetWeatherForecast")]
-        //public IEnumerable<WeatherForecast> Get()
-        //{
-        //    return Enumerable.Range(1, 5).Select(index => new WeatherForecast
-        //    {
-        //        Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-        //        TemperatureC = Random.Shared.Next(-20, 55),
-        //        Summary = Summaries[Random.Shared.Next(Summaries.Length)]
-        //    })
-        //    .ToArray();
-        //}
-
-        [HttpGet("get")]
-        public async Task<IActionResult> GetDefault()
-        {
-            var db = _redis.GetDatabase();
-            await db.StringSetAsync("myKey", "hello mass");
-            string value = await db.StringGetAsync("myKey");
-            return Ok(value);
-        }
 
         [HttpPost("add")]
         public async Task<IActionResult> AddLaw([FromBody] Laws laws)
@@ -97,14 +74,24 @@ namespace last.Controllers
                             amenities.Add(amenity);
                         }
                     }
+                    List<String> aalzone = await _lawService.GetAllKeysAsync();
+
+
+                   
                     if (amenities.FirstOrDefault() == null)
                     {
-                        var laws = await _lawService.GetSingleZoneLaws("Common");
+                        var laws = await _lawService.GetSingleZoneLaws("common");
                         return Ok(laws);
+                    }
+                    else if (aalzone.Contains(amenities.FirstOrDefault()))
+                    {
+                        var laws = await _lawService.GetSingleZoneLaws(amenities.FirstOrDefault());
+                        return Ok(laws);
+
                     }
                     else
                     {
-                        var laws = await _lawService.GetSingleZoneLaws(amenities.FirstOrDefault());
+                        var laws = await _lawService.GetSingleZoneLaws("common");
                         return Ok(laws);
 
                     }
