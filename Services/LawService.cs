@@ -1,6 +1,7 @@
 ﻿using StackExchange.Redis;
 using System.Text.Json;
 using last.Models;
+using System.Net.NetworkInformation;
 
 namespace last.Services
 {
@@ -82,20 +83,21 @@ namespace last.Services
         }
 
 
-        public async Task<string> AddLawAsync(Laws laws)
+        public async Task<string> AddLawAsync(LawsView laws)
         {
             var existingValue = await _redisDb.StringGetAsync(laws.Zone);
 
             if (!existingValue.IsNullOrEmpty)
             {
                 var lawsList = JsonSerializer.Deserialize<List<Laws>>(existingValue);
-                lawsList.Add(laws);
+
+                lawsList.Add(new Laws { Id = laws.Id, Name = laws.Name, Description = laws.Description, Zone = laws.Zone, Views = 0 });
                 await _redisDb.StringSetAsync(laws.Zone, JsonSerializer.Serialize(lawsList));
                 return "added";
             }
             else
             {
-                var newList = new List<Laws> { laws };
+                var newList = new List<Laws> { new Laws { Id = laws.Id, Name = laws.Name, Description = laws.Description, Zone = laws.Zone, Views = 0 } };
                 await _redisDb.StringSetAsync(laws.Zone, JsonSerializer.Serialize(newList));
                 return "added";
             }
@@ -103,7 +105,7 @@ namespace last.Services
         }
 
 
-        public async Task<string> AddListOfLaws(List<Laws> laws)
+        public async Task<string> AddListOfLaws(List<LawsView> laws)
         {
             foreach (var law in laws)
             {
@@ -112,12 +114,12 @@ namespace last.Services
                 if (!existingValue.IsNullOrEmpty)
                 {
                     var lawsList = JsonSerializer.Deserialize<List<Laws>>(existingValue);
-                    lawsList.Add(law);
+                    lawsList.Add(new Laws { Id = law.Id, Name = law.Name, Description = law.Description, Zone = law.Zone, Views = 0 });
                     await _redisDb.StringSetAsync(law.Zone, JsonSerializer.Serialize(lawsList));
                 }
                 else
                 {
-                    var newList = new List<Laws> { law };
+                    var newList = new List<Laws> { new Laws { Id = law.Id, Name = law.Name, Description = law.Description, Zone = law.Zone, Views = 0 } };
                     await _redisDb.StringSetAsync(law.Zone, JsonSerializer.Serialize(newList));
                 }
             }
@@ -177,6 +179,40 @@ namespace last.Services
         }
 
 
+        public async void LawView(Laws vi)
+        {
+            var zone = vi.Zone;
+            var lawId = vi.Id;
+
+            var lawsJson = await _redisDb.StringGetAsync(zone);
+
+            if (!lawsJson.IsNullOrEmpty)
+            {
+                var lawsList = JsonSerializer.Deserialize<List<Laws>>(lawsJson);
+
+                var lawToRemove = lawsList.Find(l => l.Id == lawId);
+
+                if (lawToRemove != null)
+                {
+                    // Increment the views variable
+                    lawToRemove.Views++;
+
+                    // Update the law in the list
+                    var index = lawsList.FindIndex(l => l.Id == lawId);
+                    if (index != -1)
+                    {
+                        lawsList[index] = lawToRemove;
+                    }
+
+                    // Save the updated list back to Redis
+                    await _redisDb.StringSetAsync(zone, JsonSerializer.Serialize(lawsList));
+                }
+            }
+
+        }
+
+
+
         public async Task<string> AddUserDetail(UsernameModel username)
         {
             var existingValue = await _redisDb.StringGetAsync("userdetails");
@@ -199,6 +235,72 @@ namespace last.Services
         {
             var existingValue = await _redisDb.StringGetAsync("userdetails");
             return JsonSerializer.Deserialize<List<UsernameModel>>(existingValue);
+        }
+
+        public async Task<Analatics> GetAnalaticcs()
+        {
+
+            List<string> zones = await GetAllKeysAsync();
+            long total_laws = 0;
+            List<UsernameModel> users = await Getusers();
+            List<EachZone> mostUsedLaw = new List<EachZone> { };
+            string mostUsedZone;
+
+
+
+
+            List<List<Laws>> all = await GetAllLawsAsync();
+            foreach (List<Laws> zone in all)
+            {
+                total_laws = total_laws + zone.Count();
+            }
+
+
+            foreach (List<Laws> zone in all)
+            {
+                Laws la = new Laws();
+                foreach (Laws laws in zone)
+                {
+                    try
+                    {
+                        if (laws.Views > la.Views)
+                        {
+                            la = laws;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        la = laws;
+                    }
+                }
+                if (la.Views > 0) { mostUsedLaw.Add(new EachZone { Zone = la.Zone, Law = la }); }
+            }
+
+
+            long min = 0;
+            string mi = "";
+            foreach (List<Laws> zone in all)
+            {
+                long minn = 0;
+                string mii = "";
+                foreach (Laws laws in zone)
+                {
+                    minn=minn+ laws.Views;
+                    mii = laws.Zone; 
+                }
+                if (minn > min)
+                {
+                    min= minn;
+                    mi = mii;
+                }
+               
+            }
+            mostUsedZone = mi;
+
+
+            return new Analatics { Zones = zones, Total_laws = total_laws, Users = users, MostUsedLaw = mostUsedLaw, MostUsedZone = mostUsedZone };
+
+
         }
     }
 }

@@ -28,8 +28,10 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
 {
-   // var configuration = ConfigurationOptions.Parse("localhost:6379");
-    var configuration = ConfigurationOptions.Parse("red-cpqqd0tumphs73b0iorg:6379");
+
+    //var configuration = ConfigurationOptions.Parse("rediss://red-cpqqd0tumphs73b0iorg:0sXuc3AKY38HIqpKhRKJk63oNE8lbRW5@oregon-redis.render.com:6379");
+   //var configuration = ConfigurationOptions.Parse("localhost:6379");
+     var configuration = ConfigurationOptions.Parse("red-cpqqd0tumphs73b0iorg:6379");
     configuration.AbortOnConnectFail = false;
     return ConnectionMultiplexer.Connect(configuration);
 });

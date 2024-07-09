@@ -7,10 +7,10 @@ namespace last.Models
     {
         [Key]
         public string Id { get; set; }
-
         public string Name { get; set; }
         public string Description { get; set; }
         public string Zone { get; set; }
+        public long Views { get; set; }
 
         public Laws() { }
 
@@ -20,6 +20,7 @@ namespace last.Models
             Name = name;
             Description = description;
             Zone = zone;
+            Views = Views;
         }
         public String toString()
         {

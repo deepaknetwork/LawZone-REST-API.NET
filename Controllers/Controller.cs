@@ -29,7 +29,7 @@ namespace last.Controllers
 
 
         [HttpPost("add")]
-        public async Task<IActionResult> AddLaw([FromBody] Laws laws)
+        public async Task<IActionResult> AddLaw([FromBody] LawsView laws)
         {
             Console.Write(laws.Name + " \n");
             var result = await _lawService.AddLawAsync(laws);
@@ -109,7 +109,7 @@ namespace last.Controllers
 
 
         [HttpPost("addAll")]
-        public async Task<IActionResult> AddLaws([FromBody] List<Laws> laws)
+        public async Task<IActionResult> AddLaws([FromBody] List<LawsView> laws)
         {
             var result = await _lawService.AddListOfLaws(laws);
 
@@ -183,6 +183,16 @@ namespace last.Controllers
             }
         }
 
+        [HttpPost("lawview")]
+        public  ActionResult LawView([FromBody] Laws lawtocnt)
+        {
+             _lawService.LawView(lawtocnt);
+                return Ok();
+           
+        }
+
+
+
 
         [HttpPost("adduserdetail")]
         public async Task<IActionResult> AddUserDetail([FromBody] UsernameModel userDetails)
@@ -209,6 +219,12 @@ namespace last.Controllers
             return Ok(userDetails);
         }
 
+        [HttpGet("analatics")]
+        public async Task<IActionResult> GetAnalatics()
+        {
+            var userDetails =await _lawService.GetAnalaticcs();
+            return Ok(userDetails);
+        }
 
     }
 }
